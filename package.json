@@ -3,11 +3,14 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
+	"homepage": "https://asphode1.github.io/ck/",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
-		"types": "npx supabase gen types typescript --project-id omiwmfgcnbvdodpzuaff --schema public >> src/types/types.ts"
+		"types": "npx supabase gen types typescript --project-id omiwmfgcnbvdodpzuaff --schema public >> src/types/types.ts",
+		"predeploy": "npm run build",
+		"deploy": "gh-pages -d build"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.10.0",
