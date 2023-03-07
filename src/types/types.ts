@@ -7,16 +7,19 @@ export interface Database {
 				Row: {
 					chatmessage: string
 					created_at: string
+					room: number
 					userid: number
 				}
 				Insert: {
 					chatmessage: string
 					created_at?: string
+					room: number
 					userid?: number
 				}
 				Update: {
 					chatmessage?: string
 					created_at?: string
+					room?: number
 					userid?: number
 				}
 			}
@@ -34,10 +37,7 @@ export interface Database {
 			[_ in never]: never
 		}
 	}
-}
-      
-        
-        
-          
-        
-      
+
+
+
+
