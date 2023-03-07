@@ -61,7 +61,6 @@ function App() {
 
 	useEffect(() => {
 		const channel = supabase.channel('db-chat', { config: { broadcast: { self: true } } })
-
 		channel
 			.on(
 				'postgres_changes',
@@ -69,7 +68,55 @@ function App() {
 					event: 'INSERT',
 					schema: 'public',
 					table: 'chat',
-					filter: `room=eq.${room}`,
+					filter: 'room=eq.1',
+				},
+				(payload) => {
+					setChat((chat) => [...chat, payload.new as MessageProps])
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT',
+					schema: 'public',
+					table: 'chat',
+					filter: 'room=eq.2',
+				},
+				(payload) => {
+					setChat((chat) => [...chat, payload.new as MessageProps])
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT',
+					schema: 'public',
+					table: 'chat',
+					filter: 'room=eq.4',
+				},
+				(payload) => {
+					setChat((chat) => [...chat, payload.new as MessageProps])
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT',
+					schema: 'public',
+					table: 'chat',
+					filter: 'room=eq.3',
+				},
+				(payload) => {
+					setChat((chat) => [...chat, payload.new as MessageProps])
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT',
+					schema: 'public',
+					table: 'chat',
+					filter: 'room=eq.5',
 				},
 				(payload) => {
 					setChat((chat) => [...chat, payload.new as MessageProps])
