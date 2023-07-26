@@ -1,23 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Message from './components/Message'
-import Sidenav from './components/sidenav'
-import { useTab } from './context/tab-context'
 import supabase from './supabase/supabase'
 
 export interface MessageProps {
-	userid: number
-	created_at: string
-	chatmessage: string
-	room: number
+	id: string
+	msg: string
 }
 
 function App() {
 	const messRef = useRef<HTMLInputElement>(null)
 	const sendBtn = useRef<HTMLButtonElement>(null)
 
-	const { tab: room } = useTab()
-
-	const sendMessage = async (mess: string) => await supabase.from('chat').insert({ chatmessage: mess, room: room })
+	const sendMessage = async (msg: string) => await supabase.from('chat').insert({ msg })
 
 	const handleSend = (e: React.MouseEvent) => {
 		e.preventDefault()
@@ -45,19 +39,13 @@ function App() {
 		supabase
 			.from('chat')
 			.select('*')
-			.eq('room', room)
 			.range(0, 20)
 			.then((res) => setChat(res.data as MessageProps[]))
 	}, [])
 
 	useEffect(() => {
-		supabase
-			.from('chat')
-			.select('*')
-			.eq('room', room)
-			.range(0, 20)
-			.then((res) => setChat(res.data as MessageProps[]))
-	}, [room])
+		console.log(chat)
+	}, [chat])
 
 	useEffect(() => {
 		const channel = supabase.channel('db-chat', { config: { broadcast: { self: true } } })
@@ -68,57 +56,9 @@ function App() {
 					event: 'INSERT',
 					schema: 'public',
 					table: 'chat',
-					filter: 'room=eq.1',
 				},
 				(payload) => {
-					setChat((chat) => [...chat, payload.new as MessageProps])
-				}
-			)
-			.on(
-				'postgres_changes',
-				{
-					event: 'INSERT',
-					schema: 'public',
-					table: 'chat',
-					filter: 'room=eq.2',
-				},
-				(payload) => {
-					setChat((chat) => [...chat, payload.new as MessageProps])
-				}
-			)
-			.on(
-				'postgres_changes',
-				{
-					event: 'INSERT',
-					schema: 'public',
-					table: 'chat',
-					filter: 'room=eq.4',
-				},
-				(payload) => {
-					setChat((chat) => [...chat, payload.new as MessageProps])
-				}
-			)
-			.on(
-				'postgres_changes',
-				{
-					event: 'INSERT',
-					schema: 'public',
-					table: 'chat',
-					filter: 'room=eq.3',
-				},
-				(payload) => {
-					setChat((chat) => [...chat, payload.new as MessageProps])
-				}
-			)
-			.on(
-				'postgres_changes',
-				{
-					event: 'INSERT',
-					schema: 'public',
-					table: 'chat',
-					filter: 'room=eq.5',
-				},
-				(payload) => {
+					console.log(payload)
 					setChat((chat) => [...chat, payload.new as MessageProps])
 				}
 			)
@@ -127,16 +67,13 @@ function App() {
 
 	return (
 		<div className="flex h-screen w-screen flex-row">
-			<div className="h-screen w-1/6 border-r bg-white">
-				<Sidenav />
-			</div>
 			<div className="h-screen w-5/6 bg-white">
 				<div className="flex h-[5%] items-center justify-center border-b">
 					<h1 className="text-2xl font-bold">Chat</h1>
 				</div>
 				<div id="box" className="h-[85%] w-full overflow-y-scroll border-b p-8">
-					{chat?.map((e) => (
-						<div key={e.userid}>
+					{chat.map((e) => (
+						<div key={e.id} className="m-2">
 							<Message {...e} />
 						</div>
 					))}

@@ -3,7 +3,7 @@ export type Json =
   | number
   | boolean
   | null
-  | { [key: string]: Json }
+  | { [key: string]: Json | undefined }
   | Json[]
 
 export interface Database {
@@ -11,23 +11,18 @@ export interface Database {
     Tables: {
       chat: {
         Row: {
-          chatmessage: string
-          created_at: string
-          room: number
-          userid: number
+          id: string
+          msg: string
         }
         Insert: {
-          chatmessage: string
-          created_at?: string
-          room: number
-          userid?: number
+          id?: string
+          msg: string
         }
         Update: {
-          chatmessage?: string
-          created_at?: string
-          room?: number
-          userid?: number
+          id?: string
+          msg?: string
         }
+        Relationships: []
       }
     }
     Views: {
