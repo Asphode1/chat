@@ -61,7 +61,7 @@ function App() {
 				<div id="box" className="h-[85%] w-full overflow-y-scroll border-b p-8 scrollbar-hide">
 					{chat.map((e) => (
 						<div key={e.id} className="m-2">
-							<Message {...e} />
+							<Message key={e.answer} {...e} />
 						</div>
 					))}
 				</div>
