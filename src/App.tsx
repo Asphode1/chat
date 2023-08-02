@@ -1,63 +1,52 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { FormEvent, useEffect, useRef } from 'react'
 import Message from './components/message'
+import { MessageProps, useChat } from './context/message-context'
+import { useRole } from './context/role-context'
 import supabase from './supabase/supabase'
-
-export interface MessageProps {
-	id: string
-	msg: string
-	color: string
-}
-
-const RandomColor = Math.floor(Math.random() * 16777215).toString(16)
 
 function App() {
 	const messRef = useRef<HTMLInputElement>(null)
 	const sendBtn = useRef<HTMLButtonElement>(null)
 
-	const sendMessage = async (msg: string) => await supabase.from('chat').insert({ msg, color: RandomColor })
+	const { role } = useRole()
 
-	const handleSend = (e: React.MouseEvent) => {
+	const sendMessage = async (msg: string) =>
+		await supabase
+			.from('second_chat')
+			.insert({ msg, role: role === 'Question' ? role : 'Chat', answered: role === 'Question' ? false : null })
+
+	const handleSend = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (messRef.current && messRef.current.value.length) {
 			sendMessage(messRef.current.value).catch((err) => console.log(err))
 			messRef.current.value = ''
 		}
 	}
-	const [chat, setChat] = useState<MessageProps[]>([])
+	const { chat, dispatch } = useChat()
 
 	useEffect(() => {
-		const handleEnter = (e: KeyboardEvent) => {
-			if (e.key === 'Enter') {
-				e.preventDefault()
-				if (sendBtn.current) sendBtn.current.click()
-			}
-		}
-
-		document.addEventListener('keypress', handleEnter)
-
-		return () => document.removeEventListener('keypress', handleEnter)
-	}, [])
-
-	useEffect(() => {
-		supabase
-			.from('chat')
-			.select('*')
-			.range(0, 20)
-			.then((res) => setChat(res.data as MessageProps[]))
-	}, [])
-
-	useEffect(() => {
-		const channel = supabase.channel('db-chat', { config: { broadcast: { self: true }, presence: { key: '' } } })
+		const channel = supabase.channel('db-chat', { config: { broadcast: { self: true } } })
 		channel
 			.on(
 				'postgres_changes',
 				{
 					event: 'INSERT',
 					schema: 'public',
-					table: 'chat',
+					table: 'second_chat',
 				},
 				(payload) => {
-					setChat((chat) => [...chat, payload.new as MessageProps])
+					dispatch({ type: 'insert', payload: [payload.new as MessageProps] })
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'second_chat',
+				},
+				(payload) => {
+					dispatch({ type: 'update', payload: [payload.new as MessageProps] })
 				}
 			)
 			.subscribe()
@@ -76,21 +65,16 @@ function App() {
 						</div>
 					))}
 				</div>
-				<div className="flex h-[10%] w-full flex-row justify-start p-4">
+				<form onSubmit={handleSend} className="flex h-[10%] w-full flex-row justify-start p-4">
 					<input
 						ref={messRef}
 						type="text"
 						className="inline-block w-full rounded-full border-none bg-neutral-200 px-4 py-2 outline-none"
 					/>
-					<button
-						onClick={handleSend}
-						ref={sendBtn}
-						type="button"
-						className="mx-4 rounded-full border-none outline-none"
-					>
+					<button ref={sendBtn} type="submit" className="mx-4 rounded-full border-none outline-none">
 						Gửi
 					</button>
-				</div>
+				</form>
 			</div>
 		</div>
 	)

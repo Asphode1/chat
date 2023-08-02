@@ -1,14 +1,13 @@
-import { MessageProps } from '../App'
+import { MessageProps } from '../context/message-context'
+import MessageResponse from './message-res'
 
-export default function Message({ msg, color }: MessageProps) {
-	const col = `#${color}`
+export default function Message(msg: MessageProps) {
 	return (
-		<div className="relative rounded-2xl bg-neutral-200 p-4">
-			<p>{msg}</p>
-			<div
-				className="absolute top-1/2 right-6 h-4 w-4 translate-y-[-50%] rounded-full"
-				style={{ backgroundColor: col }}
-			></div>
+		<div>
+			<div className="relative z-10 rounded-2xl bg-neutral-200 p-4">
+				<p>{msg.msg}</p>
+			</div>
+			<div>{msg.role === 'Question' ? <MessageResponse msg={msg} /> : null}</div>
 		</div>
 	)
 }

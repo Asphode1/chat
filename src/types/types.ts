@@ -27,6 +27,30 @@ export interface Database {
         }
         Relationships: []
       }
+      second_chat: {
+        Row: {
+          answer: string | null
+          answered: boolean | null
+          id: string
+          msg: string
+          role: string
+        }
+        Insert: {
+          answer?: string | null
+          answered?: boolean | null
+          id?: string
+          msg: string
+          role: string
+        }
+        Update: {
+          answer?: string | null
+          answered?: boolean | null
+          id?: string
+          msg?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
