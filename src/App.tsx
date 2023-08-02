@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Message from './components/Message'
+import Message from './components/message'
 import supabase from './supabase/supabase'
 
 export interface MessageProps {
 	id: string
 	msg: string
+	color: string
 }
+
+const RandomColor = Math.floor(Math.random() * 16777215).toString(16)
 
 function App() {
 	const messRef = useRef<HTMLInputElement>(null)
 	const sendBtn = useRef<HTMLButtonElement>(null)
 
-	const sendMessage = async (msg: string) => await supabase.from('chat').insert({ msg })
+	const sendMessage = async (msg: string) => await supabase.from('chat').insert({ msg, color: RandomColor })
 
 	const handleSend = (e: React.MouseEvent) => {
 		e.preventDefault()
@@ -44,11 +47,7 @@ function App() {
 	}, [])
 
 	useEffect(() => {
-		console.log(chat)
-	}, [chat])
-
-	useEffect(() => {
-		const channel = supabase.channel('db-chat', { config: { broadcast: { self: true } } })
+		const channel = supabase.channel('db-chat', { config: { broadcast: { self: true }, presence: { key: '' } } })
 		channel
 			.on(
 				'postgres_changes',
@@ -58,7 +57,6 @@ function App() {
 					table: 'chat',
 				},
 				(payload) => {
-					console.log(payload)
 					setChat((chat) => [...chat, payload.new as MessageProps])
 				}
 			)
@@ -67,11 +65,11 @@ function App() {
 
 	return (
 		<div className="flex h-screen w-screen flex-row">
-			<div className="h-screen w-5/6 bg-white">
+			<div className="h-screen w-full bg-white">
 				<div className="flex h-[5%] items-center justify-center border-b">
 					<h1 className="text-2xl font-bold">Chat</h1>
 				</div>
-				<div id="box" className="h-[85%] w-full overflow-y-scroll border-b p-8">
+				<div id="box" className="h-[85%] w-full overflow-y-scroll border-b p-8 scrollbar-hide">
 					{chat.map((e) => (
 						<div key={e.id} className="m-2">
 							<Message {...e} />
